@@ -1,0 +1,23 @@
+services:
+  caddy:
+    container_name: caddy
+    image: ghcr.io/caddybuilds/caddy-cloudflare:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - /etc/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - /srv/ssd/caddy/data:/data
+      - /srv/ssd/caddy/config:/config
+    networks:
+      - caddy-default
+      - caddy-proxy
+      - caddy-proxy-stash
+networks:
+  caddy-proxy:
+    external: true
+  caddy-proxy-stash:
+    external: true
+  caddy-default:

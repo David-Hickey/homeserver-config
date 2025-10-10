@@ -1,0 +1,37 @@
+services:
+  authelia:
+    container_name: 'authelia-app'
+    image: 'docker.io/authelia/authelia:latest'
+    restart: 'unless-stopped'
+    networks:
+      - caddy-proxy
+      - authelia-internal
+      - authelia-internet
+      - authelia-auth
+    volumes:
+      - '/srv/ssd/authelia/config:/config'
+      - '/srv/ssd/authelia/secrets:/secrets'
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    env_file:
+      - public.env
+      - private.env
+    volumes:
+      - /srv/ssd/authelia/postgres:/var/lib/postgresql/data
+    networks:
+      - authelia-internal
+  
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    networks:
+      - authelia-internal
+networks:
+  caddy-proxy:
+    external: true
+  authelia-internal:
+    internal: true
+  authelia-auth:
+    external: true
+  authelia-internet:

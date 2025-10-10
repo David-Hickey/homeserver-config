@@ -1,0 +1,14 @@
+services:
+  silverbullet:
+    container_name: silverbullet-app
+    image: ghcr.io/silverbulletmd/silverbullet:v2
+    restart: unless-stopped
+    volumes:
+      - /srv/ssd/silverbullet/space:/space
+    networks:
+      - caddy-proxy
+      - silverbullet-internet
+networks:
+  caddy-proxy:
+    external: true
+  silverbullet-internet:

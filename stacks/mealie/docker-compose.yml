@@ -1,0 +1,49 @@
+services:
+  mealie:
+    image: ghcr.io/mealie-recipes/mealie:v3.0.2 # 
+    container_name: mealie-app
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 1000M # 
+    volumes:
+      - /srv/ssd/mealie/data:/app/data/
+    env_file:
+      - public.env
+      - private.env
+      
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - caddy-proxy
+      - mealie-internal
+      - mealie-internet
+
+  postgres:
+    container_name: postgres
+    image: postgres:17
+    restart: always
+    volumes:
+      - /srv/ssd/mealie/pgdata:/var/lib/postgresql/data
+    env_file:
+      - private.env
+      - public.env
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - mealie-internal
+volumes:
+  mealie-data:
+  mealie-pgdata:
+
+networks:
+  caddy-proxy:
+    external: true
+  mealie-internal:
+    internal: true
+  mealie-internet:

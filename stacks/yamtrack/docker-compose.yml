@@ -1,0 +1,36 @@
+services:
+  yamtrack:
+    container_name: yamtrack-app
+    image: ghcr.io/fuzzygrim/yamtrack
+    restart: unless-stopped
+    depends_on:
+      - redis
+    volumes:
+      - /srv/ssd/yamtrack/db:/yamtrack/db
+    env_file:
+      - public.env
+      - private.env
+    networks:
+      - yamtrack-internal
+      - caddy-proxy
+      - yamtrack-internet
+
+  redis:
+    container_name: yamtrack-redis
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - /srv/ssd/yamtrack/redis:/data
+    networks:
+      - yamtrack-internal
+    env_file:
+      - public.env
+      - private.env
+
+networks:
+  caddy-proxy:
+    external: true
+  yamtrack-internal:
+    internal: true
+  yamtrack-internet:
+

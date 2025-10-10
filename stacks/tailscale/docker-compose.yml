@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  tailscale:
+    network_mode: host
+    image: tailscale/tailscale:latest
+    container_name: tailscale
+    env_file:
+      - public.env
+      - private.env
+    volumes:
+      - /srv/ssd/tailscale/state:/var/lib/tailscale
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+    restart: unless-stopped

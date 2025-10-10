@@ -1,0 +1,17 @@
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage-app
+    volumes:
+      - /srv/ssd/homepage:/app/config
+      - /srv/hdd/homepage:/hdd:ro # just so we can display available HDD space
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - public.env
+    networks:
+      - caddy-proxy
+      - homepage-internet
+networks:
+  caddy-proxy:
+    external: true
+  homepage-internet:

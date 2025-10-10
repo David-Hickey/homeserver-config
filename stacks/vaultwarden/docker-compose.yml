@@ -1,0 +1,13 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden-app
+    restart: unless-stopped
+    volumes:
+      - /srv/ssd/vaultwarden/data:/data
+    networks:
+      - caddy-proxy
+
+networks:
+  caddy-proxy:
+    external: true

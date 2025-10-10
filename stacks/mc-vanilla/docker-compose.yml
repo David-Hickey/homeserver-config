@@ -1,0 +1,13 @@
+services:
+  mc:
+    container_name: mc-vanilla
+    image: itzg/minecraft-server
+    tty: true
+    stdin_open: true
+    env_file:
+      - public.env
+    ports:
+      - "25565:25565"
+    volumes:
+      # attach the relative directory 'data' to the container's /data path
+      - /srv/ssd/mc-vanilla/data:/data
