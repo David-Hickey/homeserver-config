@@ -1,0 +1,75 @@
+#
+# WARNING: To install Immich, follow our guide: https://immich.app/docs/install/docker-compose
+#
+# Make sure to use the docker-compose.yml of the current release:
+#
+# https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml
+#
+# The compose file on main may not be compatible with the latest release.
+
+name: immich
+
+services:
+  immich-server:
+    container_name: immich-app
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    volumes:
+      - /srv/ssd/immich/library:/usr/src/app/upload
+      - /etc/localtime:/etc/localtime:ro
+    env_file:
+      - public.env
+      - private.env
+    depends_on:
+      - redis
+      - database
+    restart: always
+    healthcheck:
+      disable: false
+    networks:
+      - caddy-proxy
+      - immich-default
+      - immich-internet
+
+  immich-machine-learning:
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+    volumes:
+      - model-cache:/cache
+    env_file:
+      - public.env
+      - private.env
+    restart: always
+    healthcheck:
+      disable: false
+    networks:
+      - immich-default
+
+  redis:
+    container_name: immich_redis
+    image: docker.io/valkey/valkey:8-bookworm@sha256:ff21bc0f8194dc9c105b769aeabf9585fea6a8ed649c0781caeac5cb3c247884
+    healthcheck:
+      test: redis-cli ping || exit 1
+    restart: always
+    networks:
+      - immich-default
+
+  database:
+    container_name: immich_postgres
+    image: ghcr.io/immich-app/postgres:14-vectorchord0.3.0-pgvectors0.2.0
+    env_file:
+      - public.env
+      - private.env
+    volumes:
+      - /srv/ssd/immich/postgres:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - immich-default
+
+volumes:
+  model-cache:
+
+networks:
+  caddy-proxy:
+    external: true
+  immich-default:
+    internal: true
+  immich-internet:
